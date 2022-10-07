@@ -17,7 +17,6 @@ function createComputer() {
   let playerObject = createPlayer();
 
   let computerObject = {
-
     winnerHistory: [],
     computerLosingMoves: [],
     weightedChoices: [],
