@@ -1,8 +1,5 @@
-//Is this the best place to put this or should it be inside an object or factory function?
 const READLINE = require('readline-sync');
 
-//Should these factory functions be at the top or bottom of the program?
-//i.e. should RPSGame (as the 'main' object) come first?
 function createPlayer() {
   return {
     choices: ['rock', 'paper', 'scissors', 'lizard', 'spock'],
@@ -26,21 +23,23 @@ function createComputer() {
 
       this.weightedChoices = [];
       this.computerLosingMoves = [];
-    
-      //This creates an array of the moves which the computer made in rounds that it lost
+      //This creates an array of the moves which the computer made
+      //in rounds that it lost
       this.winnerHistory.forEach((winner, indx) => {
         if (winner === 'human') {
           let losingMove = this.moveHistory[indx];
-          this.computerLosingMoves.push(losingMove);  
+          this.computerLosingMoves.push(losingMove);
         }
       });
 
       //This works out how many times the computer lost with each type of move
-      //It then creates a 'weightedChoices' array in which the computer's losing moves appear less (in proportion to
-      //the number of times they've resulted in a computer loss) so there is a correspondingly reduced chance of
+      //It then creates a 'weightedChoices' array in which the computer's losing
+      //moves appear less (in proportion to the number of times they've resulted
+      //in a computer loss) so there is a correspondingly reduced chance of
       //certain moves being randomly selected
       this.choices.forEach(choice => {
-        let timesLost = this.computerLosingMoves.filter(move => move === choice).length;
+        let timesLost = this.computerLosingMoves
+          .filter(move => move === choice).length;
         let occurences = this.computerLosingMoves.length - timesLost;
 
         while (occurences > 0) {
@@ -51,12 +50,14 @@ function createComputer() {
     },
 
     choose() {
-      let choices; 
-      let humanWins = this.winnerHistory.filter(winner => winner === 'human').length;
+      let choices;
+      let humanWins = this.winnerHistory
+        .filter(winner => winner === 'human').length;
 
-      //The weighting only kicks in after 2 wins by the human to provide sufficient data
-      humanWins < this.humanWinsToStartWeighting ? choices = this.choices : choices = this.weightedChoices;
-      
+      //The weighting only kicks in after 2 wins by the human to
+      //provide sufficient data
+      choices = humanWins < this.humanWinsToStartWeighting ?
+        this.choices : this.weightedChoices;
       let randomIndx = Math.floor(Math.random() * choices.length);
       this.move = choices[randomIndx];
     },
@@ -71,27 +72,15 @@ function createHuman() {
 
   let humanObject = {
     shortHandChoices: ['r', 'p', 'sc', 'l', 'sp'],
-    //I tried to call the map method on the choices array in order to generate the shortHandChoices array
-    //but I kept getting error messages (that the program couldn't read the properties of undefined, reading map). Any ideas why?
-    /*
-    shortHandChoices: this.choices.map((choice, indx) => {
-      let otherChoices = this.choices.slice(indx + 1);
-      let sameStart = otherChoices.some(word => word[0] === choice[0]);
-
-      if (sameStart) {
-        return choice.slice(0, 2);
-      } else {
-        return choice.slice(0, 1);
-      }
-    });
-    */
 
     choose() {
       let choice;
 
       while (true) {
-        choice = READLINE.question(`\nPlease choose one: ${this.choices.join(', ')}\nOr you can abbreviate those choices to ${this.shortHandChoices.join(', ')}\n`);
-        if (this.choices.includes(choice) || this.shortHandChoices.includes(choice)) break;
+        choice = READLINE.question(`\nPlease choose one: ${this.choices.join(', ')}
+          \nOr you can abbreviate those choices to ${this.shortHandChoices.join(', ')}\n`);
+        if (this.choices.includes(choice)
+          || this.shortHandChoices.includes(choice)) break;
         console.log('Sorry, invalid choice.');
       }
       if (this.shortHandChoices.includes(choice)) {
@@ -103,7 +92,6 @@ function createHuman() {
   return Object.assign(playerObject, humanObject);
 }
 
-//Should this be a factory function or inside the RPSGame object?
 function createRules() {
   return {
     rock: ['scissors', 'lizard'],
@@ -146,7 +134,7 @@ const RPSGame = {
     } else {
       this.roundWinner = 'tie';
     }
-   },
+  },
 
   displayRoundWinner() {
     console.clear();
@@ -200,26 +188,27 @@ const RPSGame = {
   },
 
   someoneWinsMatch() {
-    return this.human.roundsWon === this.roundsToWinMatch || this.computer.roundsWon === this.roundsToWinMatch;
+    return this.human.roundsWon === this.roundsToWinMatch
+      || this.computer.roundsWon === this.roundsToWinMatch;
   },
 
   determineMatchWinner() {
-    this.human.roundsWon === this.roundsToWinMatch ? this.matchWinner = 'human' : this.matchWinner = 'computer';
+    this.matchWinner = this.human.roundsWon === this.roundsToWinMatch ? 'human' : 'computer';
   },
 
   displayMatchWinner() {
     let winner;
 
     if (this.matchWinner === 'human') {
-      winner = 'YOU have'
+      winner = 'YOU have';
     } else {
-      winner = 'COMPUTER has'
+      winner = 'COMPUTER has';
     }
     console.log(`\n${winner} won the match!`);
   },
 
   playAgain() {
-    let validResponses; 
+    let validResponses;
     let answer;
 
     while (true) {
@@ -228,7 +217,7 @@ const RPSGame = {
 
       if (validResponses.includes(answer.toLowerCase())) break;
       console.log('Sorry, invalid choice.');
-      }
+    }
     return validResponses.slice(0, 2).includes(answer.toLowerCase());
   },
 
@@ -258,18 +247,18 @@ const RPSGame = {
   playGame() {
     console.clear();
     this.displayWelcomeMessage();
-  
+
     while (true) {
       this.resetScores();
       this.updateMatchNumber();
       this.setStartingMoveCount();
-  
+
       while (!this.someoneWinsMatch()) {
         this.playRound();
       }
       this.determineMatchWinner();
       this.displayMatchWinner();
-    
+
       if (!this.playAgain()) {
         break;
       } else {
@@ -281,6 +270,3 @@ const RPSGame = {
 };
 
 RPSGame.playGame();
-
-
-
